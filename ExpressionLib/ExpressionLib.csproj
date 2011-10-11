@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contexts\SimpleLogic.cs" />
     <Compile Include="Contexts\SimpleMath.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="IContext.cs" />
