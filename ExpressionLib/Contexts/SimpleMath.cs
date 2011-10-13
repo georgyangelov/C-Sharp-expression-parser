@@ -10,7 +10,7 @@ namespace ExpressionLib.Contexts
     {
         public int NumParams(string oprtr)
         {
-            if (oprtr == "+" || oprtr == "-" || oprtr == "*" || oprtr == "/" || oprtr == "^")
+            if (oprtr == "+" || oprtr == "-" || oprtr == "*" || oprtr == "/" || oprtr == "^" || oprtr == "(max)")
                 return 2;
             else if (oprtr == "(sqrt)")
                 return 1;
@@ -32,6 +32,8 @@ namespace ExpressionLib.Contexts
                 return Math.Pow(values[0], values[1]);
             else if (oprtr == "(sqrt)")
                 return Math.Sqrt(values[0]);
+            else if (oprtr == "(max)")
+                return Math.Max(values[0], values[1]);
             else
                 throw new ParsingException("Unknown operator '" + oprtr + "' detected!");
         }
@@ -47,11 +49,6 @@ namespace ExpressionLib.Contexts
             return double.TryParse(c.Replace('.', ','), out r);
         }
 
-        public bool IsValidIdentificator(string c)
-        {
-            return Regex.IsMatch(c, @"^[a-zA-Z_]([a-zA-Z0-9_]+)?$");
-        }
-
         public bool IsOperator(string c)
         {
             return
@@ -62,7 +59,7 @@ namespace ExpressionLib.Contexts
 
         public int PriorityOf(string c)
         {
-            if (c == "(sqrt)")
+            if (c == "(sqrt)" || c == "(max)")
                 return 4;
             else if (c == "^")
                 return 3;

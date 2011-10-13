@@ -45,6 +45,7 @@
     <Compile Include="Evaluator.cs" />
     <Compile Include="IContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TruthTables.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

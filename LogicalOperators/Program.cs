@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ExpressionLib;
+using ExpressionLib.Contexts;
 
 namespace LogicalOperators
 {
@@ -10,15 +11,17 @@ namespace LogicalOperators
     {
         static void Main(string[] args)
         {
-            Evaluator<double> eval = new Evaluator<double>(new ExpressionLib.Contexts.SimpleMath());
+            string expr = "pr/2+(-3*2)^2 * sqrt(2+2) * max(sqrt(2), sqrt(4))";
 
-            string expr = "-1/2+(-3*2)^2 * sqrt(2+2)";
+            Dictionary<string, double> vars = new Dictionary<string, double>();
+            vars.Add("pr", -1);
+            Evaluator<double> eval = new Evaluator<double>(expr, new SimpleMath());
 
             try
             {
                 Console.WriteLine("Sample math expression: " + expr);
-                Console.WriteLine("In postfix format: " + eval.ToPostfix(expr));
-                Console.WriteLine("Result: " + eval.EvalInfix(expr));
+                Console.WriteLine("In postfix format: " + eval.Expression);
+                Console.WriteLine("Result: " + eval.Eval(vars));
             }
             catch (ParsingException e)
             {
@@ -29,14 +32,12 @@ namespace LogicalOperators
 
             Console.WriteLine("----------------------------------------");
 
-            Evaluator<bool> evalLogic = new Evaluator<bool>(new ExpressionLib.Contexts.SimpleLogic());
+            Evaluator<bool> evalLogic = new Evaluator<bool>(new SimpleLogic());
 
-            string exprLogic = "(F | (!T > T)) > ((F & T) > (F > T))";
-
+            string exprLogic = "(F | (!T > T)) = ((F & T) > (F > T))";
             try
             {
                 Console.WriteLine("Sample logical expression: " + exprLogic);
-                Console.WriteLine("In postfix format: " + evalLogic.ToPostfix(exprLogic));
                 Console.WriteLine("Result: " + evalLogic.EvalInfix(exprLogic));
             }
             catch (ParsingException e)
@@ -45,6 +46,29 @@ namespace LogicalOperators
                 Console.WriteLine(e.Message);
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
+
+            Console.WriteLine("----------------------------------------");
+
+            //string exprLogic2 = "(p > (q > r)) > ((s > t) > (u > v))";
+            string exprLogic2 = "(p -> (not q -> r)) <-> ((r -> !q) -> (p -> r))";
+
+            try
+            {
+                Console.WriteLine("Truth table of: " + exprLogic2);
+
+                Console.WriteLine();
+
+                TruthTables.PrintTable(exprLogic2);
+            }
+            catch (ParsingException e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e.Message);
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
+
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
         }
     }
 }

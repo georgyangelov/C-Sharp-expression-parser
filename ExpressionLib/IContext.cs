@@ -18,9 +18,6 @@ namespace ExpressionLib
         bool IsValue(string c, out T r);
 
         //
-        bool IsValidIdentificator(string c);
-
-        //
         bool IsOperator(string c);
 
         //

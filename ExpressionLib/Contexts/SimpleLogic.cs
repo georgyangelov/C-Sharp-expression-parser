@@ -10,26 +10,28 @@ namespace ExpressionLib.Contexts
     {
         public int NumParams(string oprtr)
         {
-            if (oprtr == "!")
+            if (oprtr == "!" || oprtr == "not")
                 return 1;
             else
                 return 2;
         }
 
-        public bool EvalOperator(string oprtr, List<bool> values)
+        public bool EvalOperator(string c, List<bool> values)
         {
-            if (oprtr == "!")
+            if (c == "!" || c == "not")
                 return !values[0];
-            else if (oprtr == "&")
+            else if (c == "&" || c == "&&")
                 return (values[0] && values[1]);
-            else if (oprtr == "|")
+            else if (c == "|" || c == "||")
                 return (values[0] || values[1]);
-            else if (oprtr == ">")
+            else if (c == "^" || c == "xor")
+                return ( (values[0] && !values[1]) || (values[1] && !values[0]));
+            else if (c == ">" || c == "->" || c == "=>" || c == "implies")
                 return (!values[0] || values[1]);
-            else if (oprtr == "=")
+            else if (c == "<->" || c == "<=>" || c == "=")
                 return (values[0] == values[1]);
             else
-                throw new ParsingException("Unknown operator '" + oprtr + "' detected!");
+                throw new ParsingException("Unknown operator '" + c + "' detected!");
         }
 
         public bool IsValue(string c)
@@ -59,37 +61,42 @@ namespace ExpressionLib.Contexts
             }
         }
 
-        public bool IsValidIdentificator(string c)
-        {
-            return Regex.IsMatch(c, @"^[a-zA-Z_]([a-zA-Z0-9_]+)?$");
-        }
-
         public bool IsOperator(string c)
         {
             return
             (
-                c == "!" || c == "&" || c == "|" || c == ">" || c == "="
+                c == "!" || c == "not" || c == "&" || c == "&&" || c == "|" || c == "||" || c == ">" || c == "<->" || c == "<=>" || c == "=" || c == "xor" || c == "^" || c == "->" || c == "=>" || c == "implies"
             );
         }
 
         public int PriorityOf(string c)
         {
-            if (c == "!")
+            if (c == "!" || c == "not")
                 return 5;
-            else if (c == "&")
+            else if (c == "&" || c == "&&")
                 return 4;
-            else if (c == "|")
+            else if (c == "|" || c == "||")
                 return 3;
-            else if (c == ">")
+            else if (c == "^" || c == "xor")
+                return 3;
+            else if (c == ">" || c == "->" || c == "=>" || c == "implies")
                 return 2;
-            else if (c == "=")
+            else if (c == "<->" || c == "<=>" || c == "=")
                 return 1;
             else return 0;
         }
 
         public Associativity AssociativityOf(string c)
         {
-            return Associativity.Left;
+            if (c == "!" || c == "not")
+                return Associativity.Right;
+            else
+                return Associativity.Left;
+        }
+
+        public static string ToString(bool value)
+        {
+            return (value ? "T" : "F");
         }
     }
 }

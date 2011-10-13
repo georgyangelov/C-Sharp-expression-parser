@@ -9,24 +9,51 @@ namespace ExpressionLib
     public class Evaluator<T>
     {
         private IContext<T> context;
-
-        internal IContext<T> Context
+        public  IContext<T> Context
         {
             get { return context; }
         }
+
+        private string expression;
+        public string Expression
+        {
+            get { return expression; }
+            set { expression = ToPostfix(value, variables); }
+        }
+
+        private List<string> variables = new List<string>();
+        public List<string> Variables
+        {
+            get { return variables; }
+        }
+
 
         public Evaluator(IContext<T> context)
         {
             this.context = context;
         }
-
-        public T EvalInfix(string infix)
+        public Evaluator(string expression, IContext<T> context)
         {
-            return EvalPostfix(ToPostfix(infix));
+            this.context = context;
+            Expression = expression;
         }
 
-        public T EvalPostfix(string postfix)
+        public T Eval(Dictionary<string, T> variables = null)
         {
+            if (Expression.Length == 0)
+                throw new Exception("No expression set!");
+
+            return EvalPostfix(Expression, variables);
+        }
+
+        public T EvalInfix(string infix, Dictionary<string, T> variables = null)
+        {
+            return EvalPostfix(ToPostfix(infix), variables);
+        }
+
+        public T EvalPostfix(string postfix, Dictionary<string, T> variables = null)
+        {
+            bool useVariables = (variables != null);
             Stack<T> nums = new Stack<T>();
             string[] expr = postfix.Split(' ');
 
@@ -36,7 +63,9 @@ namespace ExpressionLib
             {
                 if (o.Length == 0) continue;
 
-                if (Context.IsValue(o, out val))
+                if (useVariables && IsValidIdentificator(o) && variables.ContainsKey(o))
+                    nums.Push(variables[o]);
+                else if (Context.IsValue(o, out val))
                     nums.Push(val);
                 else
                 {
@@ -58,7 +87,7 @@ namespace ExpressionLib
             return nums.Pop();
         }
 
-        public string ToPostfix(string infix)
+        public string ToPostfix(string infix, List<string> variables = null)
         {
             string[] expr = splitExpression(infix);
             string output = "";
@@ -69,10 +98,26 @@ namespace ExpressionLib
             {
                 if (Context.IsValue(o))
                     output += o + " ";
+                else if (!Context.IsOperator(o) && IsValidIdentificator(o))
+                {
+                    if ( variables != null && !variables.Contains(o) ) 
+                        variables.Add(o);
+                    
+                    output += o + " ";
+                }
+                else if (o == ",")
+                {
+                    // Pop stack to output until we find the opening bracket
+                    while (oprtr.Count > 0 && (!oprtr.Peek().Contains('(')))
+                        output += oprtr.Pop() + " ";
+
+                    if (oprtr.Count == 0)
+                        throw new ParsingException("Too many closing brackets!");
+                }
                 else if (o == ")")
                 {
                     // Pop stack to output until we find the opening bracket
-                    while (oprtr.Count > 0 && (!oprtr.Peek().Contains('(')) )
+                    while (oprtr.Count > 0 && (!oprtr.Peek().Contains('(')))
                         output += oprtr.Pop() + " ";
 
                     // Discard the bracket
@@ -114,19 +159,25 @@ namespace ExpressionLib
 
         private string[] splitExpression(string expr)
         {
-            char[] input = expr.Replace(" ", "").ToCharArray();
+            char[] input = expr.ToCharArray();
             List<string> output = new List<string>();
 
             string last = "";
             foreach (char c in input)
             {
+                if (c == ' ')
+                {
+                    last = "space";
+                    continue;
+                }
+
                 if (Context.IsValue(c.ToString()) || ((last == "(" || last == ")" || last == "") && c == '-'))
                 {
                     if (last != "value")
                         output.Add(c.ToString());
                     else
                         output[output.Count - 1] += c.ToString();
-                    
+
                     last = "value";
                 }
                 else if (Context.IsOperator(c.ToString()))
@@ -134,7 +185,7 @@ namespace ExpressionLib
                     output.Add(c.ToString());
                     last = "operator";
                 }
-                else if (Context.IsValidIdentificator(c.ToString()))
+                else if (IsValidIdentificator(c.ToString()))
                 {
                     if (last != "identificator")
                         output.Add(c.ToString());
@@ -158,9 +209,16 @@ namespace ExpressionLib
 
                     last = ")";
                 }
+                else if (c == ',')
+                    last = ",";
             }
 
             return output.ToArray();
+        }
+
+        public bool IsValidIdentificator(string c)
+        {
+            return Regex.IsMatch(c, @"^[a-zA-Z_]([a-zA-Z0-9_]+)?$");
         }
     }
 
