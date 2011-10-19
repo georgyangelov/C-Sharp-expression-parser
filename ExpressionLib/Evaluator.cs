@@ -171,7 +171,7 @@ namespace ExpressionLib
                     continue;
                 }
 
-                if (Context.IsValue(c.ToString()) || ((last == "(" || last == ")" || last == "") && c == '-'))
+                if (Context.IsValue(c.ToString()) || (last == "value" && c == '.') || ((last == "(" || last == ")" || last == "") && c == '-'))
                 {
                     if (last != "value")
                         output.Add(c.ToString());

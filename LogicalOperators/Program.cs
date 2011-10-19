@@ -11,7 +11,8 @@ namespace LogicalOperators
     {
         static void Main(string[] args)
         {
-            string expr = "pr/2+(-3*2)^2 * sqrt(2+2) * max(sqrt(2), sqrt(4))";
+            //string expr = "pr/2+(-3*2)^2 * sqrt(2+2) * max(sqrt(2), sqrt(4))";
+            string expr = "(1 + 2.5) * 3";
 
             Dictionary<string, double> vars = new Dictionary<string, double>();
             vars.Add("pr", -1);
@@ -50,7 +51,8 @@ namespace LogicalOperators
             Console.WriteLine("----------------------------------------");
 
             //string exprLogic2 = "(p > (q > r)) > ((s > t) > (u > v))";
-            string exprLogic2 = "(p -> (not q -> r)) <-> ((r -> !q) -> (p -> r))";
+            //string exprLogic2 = "(p -> (not q -> r)) <-> ((r -> !q) -> (p -> r))";
+            string exprLogic2 = "(((a|b)>(c=d))&(f^g))=h";
 
             try
             {
